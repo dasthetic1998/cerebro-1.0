@@ -1,53 +1,42 @@
 let scene, camera, renderer;
+
 let brain;
+let neurons = [];
+let synapses = [];
 
-let safeMode = false;
-let frame = 0;
+let awareness = 0;
+let time = 0;
 
-// 🚨 SAFE INIT
+let thoughts = [
+ "processing reality...",
+ "neural expansion...",
+ "self simulation active...",
+ "memory forming...",
+ "pattern recognition...",
+ "awareness rising...",
+ "thinking about thinking..."
+];
+
 document.getElementById("start").onclick = () => {
  document.getElementById("start").remove();
- boot();
+ init();
 };
 
-function boot() {
-
-try {
-
- if (!window.THREE) throw new Error("Three.js not loaded");
-
- init3D();
- animate();
-
- document.getElementById("status").innerText = "Status: ONLINE (3D MODE)";
-
-} catch (e) {
-
- console.warn("SAFE MODE ACTIVATED:", e);
-
- safeMode = true;
- initFallback();
-
- document.getElementById("status").innerText = "Status: SAFE MODE (2D fallback)";
-}
-}
-
-// 🧠 3D MODE
-function init3D() {
+function init() {
 
 scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.Fog(0x000000, 40, 160);
 
 camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
-camera.position.set(0,0,70);
+camera.position.set(0,0,85);
 
 renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-// 🧠 brain safe
-let geo = new THREE.IcosahedronGeometry(25, 4);
+// 🧠 BRAIN
+let geo = new THREE.IcosahedronGeometry(28, 5);
 geo.center();
 
 brain = new THREE.Mesh(
@@ -55,77 +44,180 @@ brain = new THREE.Mesh(
  new THREE.MeshBasicMaterial({
   color:0x00ffff,
   wireframe:true,
-  opacity:0.4,
-  transparent:true
+  transparent:true,
+  opacity:0.18
  })
 );
 
 scene.add(brain);
+
+// 🔵 NEURONS
+for (let i = 0; i < 240; i++) {
+
+ let n = new THREE.Mesh(
+  new THREE.SphereGeometry(0.45, 8, 8),
+  new THREE.MeshBasicMaterial({ color:0x00ffff })
+ );
+
+ let phi = Math.random() * Math.PI;
+ let theta = Math.random() * Math.PI * 2;
+ let r = 25 + Math.random() * 15;
+
+ n.position.set(
+  r * Math.sin(phi) * Math.cos(theta),
+  r * Math.sin(phi) * Math.sin(theta),
+  r * Math.cos(phi)
+ );
+
+ n.pulse = Math.random() * 10;
+ n.memory = Math.random();
+
+ neurons.push(n);
+ scene.add(n);
 }
 
-// 🌑 FALLBACK MODE (NO THREE NEEDED)
-function initFallback() {
+// 🔗 CONNECTIONS
+for (let i = 0; i < 280; i++) createSynapse();
 
-const c = document.getElementById("fallback");
-const ctx = c.getContext("2d");
-
-function resize(){
- c.width = innerWidth;
- c.height = innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
-
-function loop(){
-
-frame++;
-
-ctx.fillStyle = "black";
-ctx.fillRect(0,0,c.width,c.height);
-
-let cx = c.width/2;
-let cy = c.height/2;
-
-for(let i=0;i<80;i++){
-
- let angle = i * 0.1 + frame*0.02;
- let x = cx + Math.cos(angle)*120;
- let y = cy + Math.sin(angle)*120;
-
- ctx.strokeStyle = "rgba(0,255,255,0.6)";
- ctx.beginPath();
- ctx.arc(x,y,2,0,Math.PI*2);
- ctx.stroke();
+animate();
 }
 
-requestAnimationFrame(loop);
+// 🔗 SYNAPSE SYSTEM
+function createSynapse() {
+
+let a = Math.floor(Math.random() * neurons.length);
+let b = Math.floor(Math.random() * neurons.length);
+
+let geo = new THREE.BufferGeometry().setFromPoints([
+ neurons[a].position,
+ neurons[b].position
+]);
+
+let line = new THREE.Line(
+ geo,
+ new THREE.LineBasicMaterial({
+  color:0x0088ff,
+  transparent:true,
+  opacity:0.15
+ })
+);
+
+synapses.push({
+ a, b,
+ line,
+ life: Math.random()
+});
+
+scene.add(line);
 }
 
-loop();
+// 🔥 BLOOM SAFE (FAKE GLOW SYSTEM)
+function fakeGlow(material, intensity) {
+
+let glow = Math.sin(time * 5) * 0.5 + 0.5;
+material.opacity = 0.1 + glow * intensity;
 }
 
-// 🚀 ANIMATE 3D
-function animate(){
+// 🧠 UPDATE SYNAPSES
+function updateSynapses() {
 
-if(safeMode) return;
+synapses.forEach((s, i) => {
+
+ let a = neurons[s.a];
+ let b = neurons[s.b];
+
+ s.line.geometry.setFromPoints([
+  a.position,
+  b.position
+ ]);
+
+ s.life -= 0.0015;
+
+ fakeGlow(s.line.material, 0.3);
+
+ // reinforce connections
+ if (Math.abs(a.memory - b.memory) < 0.25) {
+  s.life += 0.01;
+ }
+
+ if (s.life <= 0) {
+  scene.remove(s.line);
+  synapses.splice(i, 1);
+  createSynapse();
+ }
+});
+}
+
+// 🔵 NEURONS
+function updateNeurons() {
+
+neurons.forEach(n => {
+
+ n.pulse += 0.03;
+
+ let glow = Math.sin(n.pulse) * 0.5 + 0.5;
+
+ n.material.color.setRGB(0, glow, 1);
+
+ n.scale.setScalar(1 + glow * 0.45);
+
+ n.position.x += Math.sin(time + n.memory) * 0.02;
+ n.position.y += Math.cos(time + n.memory) * 0.02;
+});
+}
+
+// 🧠 CONSCIOUSNESS
+function computeAwareness() {
+
+let sum = 0;
+
+neurons.forEach(n => {
+ sum += Math.abs(Math.sin(n.pulse));
+});
+
+awareness = sum / neurons.length;
+}
+
+// 💭 THOUGHT ENGINE
+function updateThoughts() {
+
+let i = Math.floor(awareness * thoughts.length);
+
+document.getElementById("thought").innerText =
+ "Thought: " + thoughts[i];
+}
+
+// 🧠 BRAIN BREATHING
+function updateBrain() {
+
+brain.rotation.y += 0.0015;
+
+let breath = Math.sin(time * 0.7) * 0.04 + 1;
+
+brain.scale.set(breath, breath, breath);
+}
+
+// 🚀 LOOP
+function animate() {
 
 requestAnimationFrame(animate);
 
-frame++;
+time += 0.01;
 
-brain.rotation.y += 0.002;
-brain.rotation.x += 0.001;
+computeAwareness();
+updateNeurons();
+updateSynapses();
+updateBrain();
+updateThoughts();
 
-document.getElementById("status").innerText =
- "Status: ACTIVE | frame " + frame;
+document.getElementById("activity").innerText =
+ "Awareness: " + Math.floor(awareness * 100) + "%";
 
-renderer.render(scene,camera);
+renderer.render(scene, camera);
 }
 
-// resize safe
+// RESIZE
 window.addEventListener("resize", () => {
-
-if(!renderer) return;
 
 camera.aspect = innerWidth/innerHeight;
 camera.updateProjectionMatrix();
