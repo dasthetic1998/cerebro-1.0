@@ -1,6 +1,6 @@
 self.addEventListener("install", e => {
  e.waitUntil(
-  caches.open("neural").then(cache => cache.addAll(["./"]))
+  caches.open("safe-brain").then(cache => cache.addAll(["./"]))
  );
 });
 
