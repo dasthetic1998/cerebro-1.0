@@ -1,9 +1,8 @@
 {
-  "name": "Neural Consciousness",
-  "short_name": "Conscious",
+  "name": "Neural Safe Build",
+  "short_name": "SafeBrain",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#000",
-  "theme_color": "#000",
-  "icons": []
+  "background_color": "#000000",
+  "theme_color": "#000000"
 }
