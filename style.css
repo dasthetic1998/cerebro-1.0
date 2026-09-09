@@ -1,9 +1,9 @@
 body {
  margin:0;
- overflow:hidden;
- background:#000;
- font-family: monospace;
+ background:black;
  color:#00ffe5;
+ font-family: monospace;
+ overflow:hidden;
 }
 
 canvas {
@@ -12,35 +12,11 @@ canvas {
  left:0;
 }
 
-#fallback {
+.ui {
  position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
- z-index:-1;
- background: radial-gradient(circle, #001, #000);
-}
-
-#start {
- position:absolute;
- top:50%;
- left:50%;
- transform:translate(-50%,-50%);
- padding:18px 26px;
- border:1px solid #00ffe5;
- background:rgba(0,0,0,0.7);
- cursor:pointer;
- box-shadow:0 0 20px #00ffe5;
- z-index:10;
-}
-
-.panel {
- position:absolute;
  top:10px;
  left:10px;
  padding:10px;
  border:1px solid #00ffe5;
- background:rgba(0,0,0,0.4);
- z-index:10;
+ background:rgba(0,0,0,0.5);
 }
